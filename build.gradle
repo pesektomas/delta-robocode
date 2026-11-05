@@ -1,0 +1,128 @@
+plugins {
+    id 'java'
+}
+
+// Verze Robocode Tank Royale – Bot API, GUI, server i runner musí mít stejnou verzi.
+def tankRoyaleVersion = '1.4.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    botApiJar
+    guiJar
+    serverJar
+}
+
+sourceSets {
+    // Všichni boti ze složky bots/ – překládáme je kvůli kontrole, napovídání v IDE a úloze connect.
+    // Při bitvě z GUI si je booter Tank Royale spouští sám přímo ze zdrojáku.
+    bots {
+        java {
+            srcDirs = ['bots']
+            exclude 'lib/**'
+        }
+    }
+}
+
+dependencies {
+    // Nástroje (turnaj, arena, spouštěč GUI)
+    implementation "dev.robocode.tankroyale:robocode-tankroyale-runner:$tankRoyaleVersion"
+    compileOnly "dev.robocode.tankroyale:robocode-tankroyale-gui:$tankRoyaleVersion"
+    implementation 'com.google.code.gson:gson:2.11.0'
+
+    botsImplementation "dev.robocode.tankroyale:robocode-tankroyale-bot-api:$tankRoyaleVersion"
+    botApiJar "dev.robocode.tankroyale:robocode-tankroyale-bot-api:$tankRoyaleVersion"
+    guiJar "dev.robocode.tankroyale:robocode-tankroyale-gui:$tankRoyaleVersion"
+    serverJar "dev.robocode.tankroyale:robocode-tankroyale-server:$tankRoyaleVersion"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+def botsDir = file('bots')
+
+tasks.register('setup', Copy) {
+    group = 'robocode'
+    description = 'Nakopíruje Bot API do bots/lib (potřebuje ho každý bot).'
+    from configurations.botApiJar
+    into "$botsDir/lib"
+}
+
+tasks.register('verifyBots') {
+    group = 'robocode'
+    description = 'Přeloží všechny boty – odhalí chyby dřív, než se bot v aréně „nepřipojí“.'
+    dependsOn 'compileBotsJava'
+}
+
+tasks.register('gui', JavaExec) {
+    group = 'robocode'
+    description = 'Spustí Tank Royale GUI se složkou bots/ už nastavenou.'
+    dependsOn 'setup'
+    // Jen naše třídy + GUI (runner sem nepatří – obojí jsou „fat jary“ se stejnými knihovnami)
+    classpath = sourceSets.main.output + configurations.guiJar
+    mainClass = 'delta.robocode.SpustGui'
+    args botsDir.absolutePath
+}
+
+tasks.register('tournament', JavaExec) {
+    group = 'robocode'
+    description = 'Odehraje turnaj bez grafiky a vypíše žebříček. Např.: ./gradlew tournament --args="duel 5"'
+    dependsOn 'setup', 'verifyBots'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'delta.robocode.Turnaj'
+    workingDir = projectDir
+    systemProperty 'bots.dir', botsDir.absolutePath
+}
+
+// ---------------------------------------------------------------- hra přes síť
+// Pozor: vlastnosti (-P...) se nesmí jmenovat jako úloha nebo konfigurace, proto -Purl, ne -Pserver.
+
+tasks.register('server', JavaExec) {
+    group = 'robocode'
+    description = 'Spustí samostatný server (bez GUI). Např.: ./gradlew server -Psecret=TAJNE -Pport=7654'
+    classpath = configurations.serverJar
+    mainClass = 'dev.robocode.tankroyale.server.MainKt'
+    def secret = findProperty('secret')
+    args '--port', findProperty('port') ?: '7654'
+    if (secret) {
+        // Jedno heslo pro boty i pro controller (GUI / arena) – ve škole stačí
+        args '--bot-secrets', secret, '--controller-secrets', secret
+    }
+}
+
+tasks.register('arena', JavaExec) {
+    group = 'robocode'
+    description = 'Odstartuje bitvu všech botů připojených k serveru. Např.: ./gradlew arena -Psecret=TAJNE -Prounds=5'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'delta.robocode.Arena'
+    standardInput = System.in
+    workingDir = projectDir
+    systemProperty 'arena.url', findProperty('url') ?: 'ws://localhost:7654'
+    systemProperty 'arena.heslo', findProperty('secret') ?: ''
+    systemProperty 'arena.kola', findProperty('rounds') ?: '10'
+    systemProperty 'arena.timeout', findProperty('timeout') ?: '0'
+    systemProperty 'arena.cekat', findProperty('wait') ?: '0'
+}
+
+tasks.register('connect', JavaExec) {
+    group = 'robocode'
+    description = 'Připojí tvého bota k serveru. Např.: ./gradlew connect -Pbot=NovakTank -Purl=ws://10.0.0.5:7654 -Psecret=TAJNE'
+    dependsOn 'compileBotsJava'
+    def bot = findProperty('bot') ?: 'Sablona'
+    classpath = sourceSets.bots.runtimeClasspath
+    mainClass = bot
+    workingDir = file("bots/$bot")
+    environment 'SERVER_URL', findProperty('url') ?: 'ws://localhost:7654'
+    if (findProperty('secret')) {
+        environment 'SERVER_SECRET', findProperty('secret')
+    }
+}

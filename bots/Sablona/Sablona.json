@@ -1,0 +1,13 @@
+{
+  "name": "Sablona",
+  "version": "1.0",
+  "authors": [
+    "Tvoje Jméno"
+  ],
+  "description": "Šablona pro vlastního bota. Zkopíruj složku a přejmenuj.",
+  "countryCodes": [
+    "cz"
+  ],
+  "platform": "JVM",
+  "programmingLang": "Java 17"
+}

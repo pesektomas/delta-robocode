@@ -1,0 +1,13 @@
+{
+  "name": "Hrac",
+  "version": "1.0",
+  "authors": [
+    "Návštěvník"
+  ],
+  "description": "Tank ovládaný klávesnicí. Po startu bitvy klikni do okna Ovladač: WASD jízda, Q/E dělo, mezerník střelba, M asistent míření.",
+  "countryCodes": [
+    "cz"
+  ],
+  "platform": "JVM",
+  "programmingLang": "Java 17"
+}

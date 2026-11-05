@@ -1,0 +1,13 @@
+{
+  "name": "Beran",
+  "version": "1.0",
+  "authors": [
+    "Delta"
+  ],
+  "description": "Najde nejslabšího soupeře, jede přímo na něj a taranuje.",
+  "countryCodes": [
+    "cz"
+  ],
+  "platform": "JVM",
+  "programmingLang": "Java 17"
+}

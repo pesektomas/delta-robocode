@@ -1,0 +1,13 @@
+{
+  "name": "Stopar",
+  "version": "1.0",
+  "authors": [
+    "Delta"
+  ],
+  "description": "Drží soupeře radarem a míří tam, kam soupeř dojede (kruhová predikce). Zapni Graphical Debugging!",
+  "countryCodes": [
+    "cz"
+  ],
+  "platform": "JVM",
+  "programmingLang": "Java 17"
+}

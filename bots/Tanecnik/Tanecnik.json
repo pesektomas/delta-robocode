@@ -1,0 +1,13 @@
+{
+  "name": "Tanecnik",
+  "version": "1.0",
+  "authors": [
+    "Delta"
+  ],
+  "description": "Pozná podle poklesu energie, že soupeř vystřelil, a uhne. Zapni Graphical Debugging!",
+  "countryCodes": [
+    "cz"
+  ],
+  "platform": "JVM",
+  "programmingLang": "Java 17"
+}

@@ -1,0 +1,28 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IntelliJ IDEA – projekt se otevírá z build.gradle, nastavení si IDE vytvoří samo
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# VS Code / Eclipse
+.vscode/
+.classpath
+.project
+.settings/
+bin/
+
+# Bot API (vytvoří ./gradlew setup)
+bots/lib/
+
+# Výsledky turnajů a záznamy bitev
+vysledky/
+
+# macOS / Windows
+.DS_Store
+Thumbs.db
