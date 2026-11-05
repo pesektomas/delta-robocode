@@ -55,7 +55,9 @@ Bot = **jedna složka** v `bots/` se dvěma soubory. Název složky, souborů i 
      ...
    }
    ```
-5. Zkontroluj, že je všechno v pořádku:
+5. V IntelliJ klikni na ikonu slona (**Reload All Gradle Projects**) – jinak novou složku nepozná
+   a hlásí „Missing package statement“.
+6. Zkontroluj, že je všechno v pořádku:
    ```bash
    ./gradlew verifyBots
    ```

@@ -24,10 +24,10 @@ configurations {
 sourceSets {
     // Všichni boti ze složky bots/ – překládáme je kvůli kontrole, napovídání v IDE a úloze connect.
     // Při bitvě z GUI si je booter Tank Royale spouští sám přímo ze zdrojáku.
+    // Každá složka bota je samostatný zdrojový kořen – boti nemají package, IDE by jinak chtělo „package Beran;“.
     bots {
         java {
-            srcDirs = ['bots']
-            exclude 'lib/**'
+            srcDirs = file('bots').listFiles().findAll { it.directory && it.name != 'lib' }
         }
     }
 }
